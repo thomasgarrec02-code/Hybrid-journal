@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Journal Hybride</title>
+<meta name="theme-color" content="#14151A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hybride">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14151A;
+    --card:#1E2027;
+    --card-hi:#25272F;
+    --line: rgba(255,255,255,0.08);
+    --line-strong: rgba(255,255,255,0.16);
+    --text:#E8E6DF;
+    --text-dim:#9A9DA6;
+    --text-faint:#6B6E77;
+    --force:#5B8FBE;
+    --force-dim:#2B3B4A;
+    --force-text:#9AC1E6;
+    --endur:#E0812E;
+    --endur-dim:#3F2C1B;
+    --endur-text:#F0AC6E;
+    --autre:#7C8A6E;
+    --autre-dim:#2A2F24;
+    --autre-text:#B6C6A2;
+    --danger:#C1554F;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    padding:calc(env(safe-area-inset-top) + 24px) 20px calc(env(safe-area-inset-bottom) + 60px);
+    -webkit-user-select:none;
+    user-select:none;
+  }
+  input, textarea{-webkit-user-select:text;user-select:text;}
+  .wrap{max-width:640px;margin:0 auto;}
+  h1{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;
+    font-size:34px;
+    letter-spacing:0.5px;
+    margin:0 0 2px;
+    text-transform:uppercase;
+  }
+  .sub{color:var(--text-dim);font-size:14px;margin:0 0 24px;}
+
+  .balance{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:20px 20px 18px;
+    margin-bottom:20px;
+  }
+  .balance-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
+  .balance-label{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-faint);}
+  .balance-streak{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-dim);}
+  .bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--card-hi);margin-bottom:10px;}
+  .bar-seg{height:100%;transition:width .3s ease;}
+  .bar-force{background:var(--force);}
+  .bar-endur{background:var(--endur);}
+  .bar-autre{background:var(--autre);}
+  .balance-legend{display:flex;gap:18px;font-size:13px;color:var(--text-dim);flex-wrap:wrap;}
+  .legend-item{display:flex;align-items:center;gap:6px;}
+  .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 14px;}
+  .stat-label{font-size:12px;color:var(--text-faint);margin-bottom:4px;}
+  .stat-val{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:26px;}
+
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:20px;
+    margin-bottom:20px;
+  }
+  .panel h2{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;
+    font-size:20px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    margin:0 0 16px;
+  }
+
+  .type-tabs{display:flex;gap:8px;margin-bottom:16px;}
+  .type-tab{
+    flex:1;
+    padding:12px 8px;
+    border-radius:9px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--text-dim);
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    font-weight:500;
+    cursor:pointer;
+    text-align:center;
+  }
+  .type-tab.active.force{background:var(--force-dim);border-color:var(--force);color:var(--force-text);}
+  .type-tab.active.endur{background:var(--endur-dim);border-color:var(--endur);color:var(--endur-text);}
+  .type-tab.active.autre{background:var(--autre-dim);border-color:var(--autre);color:var(--autre-text);}
+
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:12px;color:var(--text-faint);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.4px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  input,select,textarea{
+    width:100%;
+    background:var(--card-hi);
+    border:1px solid var(--line-strong);
+    border-radius:8px;
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:16px;
+    padding:10px 10px;
+  }
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--text-dim);}
+  textarea{resize:vertical;min-height:50px;}
+  .exo-row{display:grid;grid-template-columns:1fr 54px 54px 64px auto;gap:6px;margin-bottom:8px;align-items:center;}
+  .exo-row input{padding:8px 6px;font-size:13px;}
+  .rm-btn{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:20px;line-height:1;padding:6px;}
+  .rm-btn:hover{color:var(--danger);}
+  .add-exo{
+    background:none;border:1px dashed var(--line-strong);color:var(--text-dim);
+    border-radius:8px;padding:10px;font-size:13px;cursor:pointer;width:100%;margin-top:4px;
+  }
+  .add-exo:hover{border-color:var(--text-dim);}
+
+  .submit-row{display:flex;gap:10px;margin-top:16px;}
+  .btn{
+    border-radius:9px;border:1px solid var(--line-strong);
+    background:transparent;color:var(--text);
+    font-family:'Inter',sans-serif;font-size:14px;font-weight:500;
+    padding:13px 16px;cursor:pointer;flex:1;
+  }
+  .btn:hover{background:var(--card-hi);}
+  .btn.primary.force{background:var(--force);border-color:var(--force);color:#0E1620;}
+  .btn.primary.endur{background:var(--endur);border-color:var(--endur);color:#1C0F04;}
+  .btn.primary.autre{background:var(--autre);border-color:var(--autre);color:#12160D;}
+  .btn.ghost{flex:0 0 auto;}
+
+  .log-empty{color:var(--text-faint);font-size:14px;text-align:center;padding:30px 0;}
+  .day-group{margin-bottom:18px;}
+  .day-title{font-size:12px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;}
+  .entry{
+    background:var(--card-hi);
+    border-left:3px solid var(--autre);
+    border-radius:0 10px 10px 0;
+    padding:12px 14px;
+    margin-bottom:8px;
+    position:relative;
+  }
+  .entry.force{border-left-color:var(--force);}
+  .entry.endur{border-left-color:var(--endur);}
+  .entry-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .entry-title{font-weight:500;font-size:14px;}
+  .entry-meta{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);margin-top:2px;}
+  .entry-del{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:18px;padding:4px 6px;flex-shrink:0;}
+  .entry-del:hover{color:var(--danger);}
+  .entry-notes{font-size:13px;color:var(--text-dim);margin-top:6px;line-height:1.5;}
+  .rpe-badge{
+    display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;
+    padding:1px 7px;border-radius:5px;background:rgba(255,255,255,0.06);color:var(--text-dim);
+    margin-left:6px;
+  }
+
+  .loading{color:var(--text-faint);font-size:13px;text-align:center;padding:20px 0;}
+  .toast{
+    position:fixed;bottom:calc(env(safe-area-inset-bottom) + 20px);left:50%;transform:translateX(-50%);
+    background:var(--card-hi);border:1px solid var(--line-strong);
+    padding:9px 16px;border-radius:8px;font-size:13px;color:var(--text);
+    opacity:0;transition:opacity .25s ease;pointer-events:none;
+  }
+  .toast.show{opacity:1;}
+  .reset-link{
+    display:block;text-align:center;color:var(--text-faint);font-size:12px;
+    margin-top:24px;background:none;border:none;cursor:pointer;text-decoration:underline;
+    width:100%;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Journal hybride</h1>
+  <p class="sub">Force et endurance, une seule trajectoire.</p>
+
+  <div class="balance">
+    <div class="balance-top">
+      <span class="balance-label">Équilibre — 7 derniers jours</span>
+      <span class="balance-streak" id="streakOut">—</span>
+    </div>
+    <div class="bar" id="balanceBar">
+      <div class="bar-seg bar-force" style="width:0%"></div>
+      <div class="bar-seg bar-endur" style="width:0%"></div>
+      <div class="bar-seg bar-autre" style="width:0%"></div>
+    </div>
+    <div class="balance-legend">
+      <span class="legend-item"><span class="dot" style="background:var(--force)"></span>Force</span>
+      <span class="legend-item"><span class="dot" style="background:var(--endur)"></span>Endurance</span>
+      <span class="legend-item"><span class="dot" style="background:var(--autre)"></span>Autre</span>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Séances (7j)</div><div class="stat-val" id="statWeek">—</div></div>
+    <div class="stat"><div class="stat-label">Total loggé</div><div class="stat-val" id="statTotal">—</div></div>
+    <div class="stat"><div class="stat-label">RPE moyen</div><div class="stat-val" id="statRpe">—</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Nouvelle séance</h2>
+    <div class="type-tabs" id="typeTabs">
+      <button class="type-tab force active" data-type="force">Force</button>
+      <button class="type-tab endur" data-type="endur">Endurance</button>
+      <button class="type-tab autre" data-type="autre">Autre</button>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="fDate">
+      </div>
+      <div class="field">
+        <label>Titre</label>
+        <input type="text" id="fTitle" placeholder="Ex: Développé couché, Sortie longue">
+      </div>
+    </div>
+
+    <div id="forceFields">
+      <label style="display:block;font-size:12px;color:var(--text-faint);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px;">Exercices</label>
+      <div id="exoList"></div>
+      <button class="add-exo" id="addExo" type="button">+ Ajouter un exercice</button>
+    </div>
+
+    <div id="endurFields" style="display:none;">
+      <div class="row3">
+        <div class="field"><label>Distance (km)</label><input type="number" step="0.1" id="fDist"></div>
+        <div class="field"><label>Durée (min)</label><input type="number" id="fDur"></div>
+        <div class="field"><label>Allure / rythme</label><input type="text" id="fPace" placeholder="5:10/km"></div>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>RPE (1-10)</label>
+        <input type="number" min="1" max="10" id="fRpe">
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Notes</label>
+      <textarea id="fNotes" placeholder="Sensations, météo, contexte..."></textarea>
+    </div>
+
+    <div class="submit-row">
+      <button class="btn primary force" id="submitBtn">Enregistrer la séance</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Historique</h2>
+    <div id="logArea"><div class="loading">Chargement du journal…</div></div>
+  </div>
+
+  <button class="reset-link" id="resetBtn">Réinitialiser tout le journal</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'journal_hybride_entries';
+let entries = [];
+let currentType = 'force';
+let exoCount = 0;
+
+function todayStr(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+function uid(){
+  return 'e_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+}
+
+function loadEntries(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    entries = raw ? JSON.parse(raw) : [];
+  }catch(e){
+    entries = [];
+  }
+  renderAll();
+}
+
+function saveEntries(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    return true;
+  }catch(e){
+    showToast("Échec de l'enregistrement");
+    return false;
+  }
+}
+
+function addExoRow(prefill){
+  exoCount++;
+  const id = 'exo_' + exoCount;
+  const div = document.createElement('div');
+  div.className = 'exo-row';
+  div.id = id;
+  div.innerHTML = `
+    <input type="text" placeholder="Exercice" class="exo-name" value="${prefill && prefill.name ? prefill.name : ''}">
+    <input type="number" placeholder="Séries" class="exo-sets" value="${prefill && prefill.sets ? prefill.sets : ''}">
+    <input type="number" placeholder="Reps" class="exo-reps" value="${prefill && prefill.reps ? prefill.reps : ''}">
+    <input type="number" placeholder="Kg" class="exo-load" value="${prefill && prefill.load ? prefill.load : ''}">
+    <button type="button" class="rm-btn" aria-label="Supprimer l'exercice">&times;</button>
+  `;
+  div.querySelector('.rm-btn').addEventListener('click', ()=> div.remove());
+  document.getElementById('exoList').appendChild(div);
+}
+
+function collectExos(){
+  const rows = document.querySelectorAll('#exoList .exo-row');
+  const list = [];
+  rows.forEach(r=>{
+    const name = r.querySelector('.exo-name').value.trim();
+    if(!name) return;
+    list.push({
+      name,
+      sets: r.querySelector('.exo-sets').value,
+      reps: r.querySelector('.exo-reps').value,
+      load: r.querySelector('.exo-load').value
+    });
+  });
+  return list;
+}
+
+function setType(type){
+  currentType = type;
+  document.querySelectorAll('.type-tab').forEach(b=>{
+    b.classList.toggle('active', b.dataset.type === type);
+  });
+  document.getElementById('forceFields').style.display = type === 'force' ? 'block' : 'none';
+  document.getElementById('endurFields').style.display = type === 'endur' ? 'block' : 'none';
+  const btn = document.getElementById('submitBtn');
+  btn.className = 'btn primary ' + type;
+}
+
+function handleSubmit(){
+  const date = document.getElementById('fDate').value || todayStr();
+  const title = document.getElementById('fTitle').value.trim() || (currentType === 'force' ? 'Séance de force' : currentType === 'endur' ? "Séance d'endurance" : 'Séance');
+  const rpe = document.getElementById('fRpe').value;
+  const notes = document.getElementById('fNotes').value.trim();
+
+  let detail = {};
+  if(currentType === 'force'){
+    const exos = collectExos();
+    if(exos.length === 0){
+      showToast('Ajoute au moins un exercice');
+      return;
+    }
+    detail = { exos };
+  } else if(currentType === 'endur'){
+    const dist = document.getElementById('fDist').value;
+    const dur = document.getElementById('fDur').value;
+    const pace = document.getElementById('fPace').value.trim();
+    if(!dist && !dur){
+      showToast('Renseigne au moins une distance ou une durée');
+      return;
+    }
+    detail = { dist, dur, pace };
+  }
+
+  const entry = {
+    id: uid(),
+    date,
+    type: currentType,
+    title,
+    rpe: rpe || null,
+    notes,
+    detail,
+    createdAt: Date.now()
+  };
+
+  entries.push(entry);
+  const ok = saveEntries();
+  if(ok){
+    showToast('Séance enregistrée');
+    resetForm();
+    renderAll();
+  }
+}
+
+function resetForm(){
+  document.getElementById('fDate').value = todayStr();
+  document.getElementById('fTitle').value = '';
+  document.getElementById('fRpe').value = '';
+  document.getElementById('fNotes').value = '';
+  document.getElementById('fDist').value = '';
+  document.getElementById('fDur').value = '';
+  document.getElementById('fPace').value = '';
+  document.getElementById('exoList').innerHTML = '';
+  addExoRow();
+}
+
+function deleteEntry(id){
+  entries = entries.filter(e => e.id !== id);
+  saveEntries();
+  renderAll();
+}
+
+function formatDetail(e){
+  if(e.type === 'force'){
+    const exos = (e.detail && e.detail.exos) || [];
+    return exos.map(x=>{
+      let s = x.name;
+      const parts = [];
+      if(x.sets) parts.push(x.sets + 'x' + (x.reps || '?'));
+      if(x.load) parts.push(x.load + 'kg');
+      if(parts.length) s += ' — ' + parts.join(' @ ');
+      return s;
+    }).join(' · ');
+  }
+  if(e.type === 'endur'){
+    const d = e.detail || {};
+    const parts = [];
+    if(d.dist) parts.push(d.dist + ' km');
+    if(d.dur) parts.push(d.dur + ' min');
+    if(d.pace) parts.push(d.pace);
+    return parts.join(' · ');
+  }
+  return '';
+}
+
+function formatDateHeader(dateStr){
+  const d = new Date(dateStr + 'T00:00:00');
+  const opts = { weekday:'long', day:'numeric', month:'long' };
+  let s = d.toLocaleDateString('fr-FR', opts);
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function renderLog(){
+  const area = document.getElementById('logArea');
+  if(entries.length === 0){
+    area.innerHTML = '<div class="log-empty">Aucune séance loggée. Ta première entrée apparaîtra ici.</div>';
+    return;
+  }
+  const sorted = [...entries].sort((a,b)=> (b.date + b.createdAt).localeCompare(a.date + a.createdAt));
+  const groups = {};
+  sorted.forEach(e=>{
+    if(!groups[e.date]) groups[e.date] = [];
+    groups[e.date].push(e);
+  });
+  const dates = Object.keys(groups).sort().reverse();
+  let html = '';
+  dates.forEach(date=>{
+    html += `<div class="day-group"><div class="day-title">${formatDateHeader(date)}</div>`;
+    groups[date].forEach(e=>{
+      const detail = formatDetail(e);
+      html += `
+        <div class="entry ${e.type}">
+          <div class="entry-top">
+            <div>
+              <div class="entry-title">${escapeHtml(e.title)}${e.rpe ? `<span class="rpe-badge">RPE ${escapeHtml(String(e.rpe))}</span>` : ''}</div>
+              ${detail ? `<div class="entry-meta">${escapeHtml(detail)}</div>` : ''}
+            </div>
+            <button class="entry-del" data-id="${e.id}" aria-label="Supprimer">&times;</button>
+          </div>
+          ${e.notes ? `<div class="entry-notes">${escapeHtml(e.notes)}</div>` : ''}
+        </div>`;
+    });
+    html += '</div>';
+  });
+  area.innerHTML = html;
+  area.querySelectorAll('.entry-del').forEach(b=>{
+    b.addEventListener('click', ()=> deleteEntry(b.dataset.id));
+  });
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function renderStats(){
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7*24*3600*1000);
+  const weekEntries = entries.filter(e => new Date(e.date + 'T00:00:00') >= weekAgo);
+
+  const counts = { force:0, endur:0, autre:0 };
+  weekEntries.forEach(e => counts[e.type] = (counts[e.type]||0) + 1);
+  const total = counts.force + counts.endur + counts.autre;
+
+  const bar = document.getElementById('balanceBar');
+  const segs = bar.querySelectorAll('.bar-seg');
+  if(total === 0){
+    segs[0].style.width = '0%';
+    segs[1].style.width = '0%';
+    segs[2].style.width = '0%';
+  }else{
+    segs[0].style.width = (counts.force/total*100) + '%';
+    segs[1].style.width = (counts.endur/total*100) + '%';
+    segs[2].style.width = (counts.autre/total*100) + '%';
+  }
+
+  document.getElementById('statWeek').textContent = total;
+  document.getElementById('statTotal').textContent = entries.length;
+
+  const rpeVals = entries.map(e => parseFloat(e.rpe)).filter(v => !isNaN(v));
+  const avgRpe = rpeVals.length ? (rpeVals.reduce((a,b)=>a+b,0)/rpeVals.length).toFixed(1) : '—';
+  document.getElementById('statRpe').textContent = avgRpe;
+
+  const streak = computeStreak();
+  document.getElementById('streakOut').textContent = streak + ' j. actifs';
+}
+
+function computeStreak(){
+  const dateSet = new Set(entries.map(e=>e.date));
+  let streak = 0;
+  let d = new Date();
+  while(true){
+    const s = d.toISOString().slice(0,10);
+    if(dateSet.has(s)){
+      streak++;
+      d.setDate(d.getDate()-1);
+    }else{
+      break;
+    }
+  }
+  return streak;
+}
+
+function renderAll(){
+  renderLog();
+  renderStats();
+}
+
+document.getElementById('typeTabs').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.type-tab');
+  if(!btn) return;
+  setType(btn.dataset.type);
+});
+
+document.getElementById('addExo').addEventListener('click', ()=> addExoRow());
+document.getElementById('submitBtn').addEventListener('click', handleSubmit);
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('Supprimer toutes les séances enregistrées ?')) return;
+  entries = [];
+  saveEntries();
+  renderAll();
+  showToast('Journal réinitialisé');
+});
+
+document.getElementById('fDate').value = todayStr();
+addExoRow();
+loadEntries();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
